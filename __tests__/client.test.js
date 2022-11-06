@@ -17,7 +17,7 @@ async function waitForSocketState(socket, state) {
       } else {
         waitForSocketState(socket, state).then(resolve);
       }
-    }, 5);
+    }, 800);
   });
 }
 
@@ -55,6 +55,8 @@ describe('test websocket client', () => {
         console.log(`socket is connected from the client side with ip: ${ip} and port: ${port}`);
         console.log(`received some data from the client side: "${data}"`);
         message = data;
+        expect(Buffer.from(message).toString('utf8'))
+          .toMatch(new RegExp(`(something from client with sessionId:|${timestamp})`));
       });
 
       ws.on('close', () => {
@@ -62,12 +64,11 @@ describe('test websocket client', () => {
 
       const str = 'something from server!';
       const array = new Uint8Array(Buffer.from(str, 'utf8'));
-
       ws.send(array);
     });
 
-    // await waitForSocketState(mockServer, socketState.OPEN);
     wsClient = await connectServer(`ws://${host}:${port}`);
+    await waitForSocketState(wsClient, wsClient.OPEN);
 
     try {
       await wsClient.close();
@@ -81,8 +82,6 @@ describe('test websocket client', () => {
       throw new Error(err);
     }
 
-    expect(Buffer.from(message).toString('utf8'))
-          .toMatch(new RegExp(`(something from client with sessionId:|${timestamp})`));
 
   });
 });
