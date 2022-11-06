@@ -35,6 +35,10 @@ describe('test websocket client', () => {
 
   jest.setTimeout(10000);
 
+  beforeAll(() => {
+    jest.useFakeTimers();
+  });
+
   beforeEach(() => {
   });
 
@@ -44,6 +48,7 @@ describe('test websocket client', () => {
   });
 
   test('websocket client connect to server', async () => {
+    jest.useRealTimers();
     let timestamp, message;
     mockServer = await startServer({port});
 
